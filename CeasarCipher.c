@@ -16,9 +16,9 @@ char replace(char c);
 int isLoop = true;
 int isCheckAll=false;
 int main(int argc, char* argv[]){
-	if(argc > 1 && *argv[1] != 'r' && *argv[1] != 'a'){//コマンドライン引数の二番目をweightとして受け取る
+	if(argc > 1 && *argv[1] != 'd' && *argv[1] != 'a'){//コマンドライン引数の二番目をweightとして受け取る
 		weight = atoi(argv[1]);//コマンドライン引数から受け取ったものはchar*なのでintにする。
-		if(argc > 2 && *argv[2] == 'r'){
+		if(argc > 2 && *argv[2] == 'd'){
 			alpWeight = weight;
 			numWeight = weight;
 			while(alpWeight >= ALP_SUM){
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 		//cout <<"weight:" << weight << " numWeight:" << numWeight << " alpWeight:" << alpWeight << endl;
-	}else if(argc > 1 && *argv[1] == 'r'){
+	}else if(argc > 1 && *argv[1] == 'd'){
 		alpWeight = ALP_SUM-alpWeight;
 		numWeight = NUM_SUM-numWeight;
 		while(alpWeight >= ALP_SUM){
