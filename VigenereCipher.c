@@ -120,8 +120,21 @@ int converttonums(char srcarray[],int numarray[]){
 void scopy(char dst[],char src[]){
 	//srcの文字列をdstにコピー,文字の中身は同じだがアドレスが異なる。
 	while(*src != '\0'){
-		*dst = *src;
-		src++;
-		dst++;
+		//アルファベット以外を無視してコピー
+		int i;
+		for(i=0;i<ALP_SUM;i++){
+			if(lowerCase[i] == *src){
+				*dst = *src;
+				dst++;
+				break;
+			}else if(upperCase[i] == *src){
+				*dst = *src;
+				dst++;
+				break;
+			}
+			
+		}
+		
+				src++;
 	}
 }
