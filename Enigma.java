@@ -2,7 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class Main {
+public class Enigma {
 	
 	static final int ALP_SUM = 26;
 	static final int KEY_WEIGHT = 3;
