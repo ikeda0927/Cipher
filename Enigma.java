@@ -50,7 +50,8 @@ public class Enigma {
 			for(int l=0;l<s1.length();l++) {//Main process
 				int n =converter(s1Num[l]);
 				if(Integer.valueOf(n).equals(-1)) {
-					System.out.print(" ");
+					//System.out.print(" ");
+					System.out.print(s1.charAt(l));
 					continue;
 				}else {
 					System.out.print(list[n]);
