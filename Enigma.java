@@ -96,14 +96,14 @@ public class Enigma {
 	public static int converter(int s1Num) {
 		//Important
 		int result = scrambler1.getPairNum(scrambler2.getPairNum(scrambler3.getPairNum(reflector.getPairNum(scrambler3.getPairNum(scrambler2.getPairNum(scrambler1.getPairNum(s1Num)))))));
-		switch(reciprocate){
+		switch(reciprocate){//Update scrambler
 		case 0:
 			if(l1<ALP_SUM) {
 				l1++;
 			}else {
 				l1=1;
 			}
-			scrambler1=new Pair(l1);//Generate new scrambler
+			scrambler1=new Pair(l1);
 			reciprocate++;
 			break;
 		case 1:
