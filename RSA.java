@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class Main {
+public class RSA {
     public static final int ALPH_SUM=53;
     static final char[] alpha = {'A','B','C','D','E','F','G','H','I','J',
             'K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
@@ -244,20 +244,25 @@ public class Main {
     }
     public static void generate(){
         System.out.println("Generate prime number p and q");
-        Random random = new Random();
-        int randomWeight=100000;
-        int p=4;
-        while(!millerRabin(p)){
-            p=random.nextInt(randomWeight);
-        }
+    	int p=4;
         int q=4;
-        while(!millerRabin(q)){
-            q=random.nextInt(randomWeight);
-        }
-        if(p<0)p=p*(-1);
-        if(q<0)q=q*(-1);
+		Random random = new Random();
+        while(true){
+	        int randomWeight=100000;
+        	while(!millerRabin(p)){
+        	    p=random.nextInt(randomWeight);
+        	}
+        	while(!millerRabin(q)){
+        	    q=random.nextInt(randomWeight);
+        	}
+        	if(p<0)p=p*(-1);
+        	if(q<0)q=q*(-1);
+			if(p*q>0){
+				break;
+			}
+		}
         //to see p and q
-        //System.out.println("p:"+p+"\nq:"+q);
+        System.out.println("p:"+p+"\nq:"+q);
 
         System.out.println("Generate public key");
         long e =lcm(p,q);
