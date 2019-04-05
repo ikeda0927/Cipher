@@ -97,7 +97,7 @@ public class RSA {
         return new long[]{a, x0, y0};
     }
     public static long gcdEx2(long e, long a, long b){
-        for(int d=1;;d++){
+        for(long d=1;;d++){
             long x;
             x=a*d/b;
             if((a*d-x*b)%e==1){
@@ -259,6 +259,9 @@ public class RSA {
         	if(q<0)q=q*(-1);
 			if(p*q>0){
 				break;
+			}else{
+				p=4;
+				q=4;
 			}
 		}
         //to see p and q
