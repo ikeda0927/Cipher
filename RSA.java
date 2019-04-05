@@ -153,7 +153,6 @@ public class RSA {
         for(int i=0;i<numArray.length;i++){
             System.out.print(alpha[(numArray[i]>=ALPH_SUM||numArray[i]<0)?ALPH_SUM-1:numArray[i]]);
         }
-        System.out.println("");
     }
     public static void showString(long[] numArray){
         System.out.println("");
@@ -185,7 +184,13 @@ public class RSA {
         }
     }
     public static long getPublicKey(long l){
-        for(long p=2;p<l;p++){
+		Random rand = new Random();
+		int weight = 200;
+		long p=(long)rand.nextInt(25000);
+		if(p>l+weight){
+			p=l-weight;
+		}
+        for(;p<l;p++){
             if(gcd(l,p)==1){
                 return p;
             }
@@ -272,7 +277,7 @@ public class RSA {
         long pk = getPublicKey(e);
         System.out.println("Public key:"+pk+"\nn:"+p*q);
 
-        System.out.println("Generate secret key:");
+        System.out.println("Generate secret key");
         long sk = gcdEx2(e,pk,(p-1)*(q-1));
         System.out.println("Secret key:"+sk);
         p=0;q=0;pk=0;sk=0;
