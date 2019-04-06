@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class RSA {
+public class Main {
     public static final int ALPH_SUM=53;
     static final char[] alpha = {'A','B','C','D','E','F','G','H','I','J',
             'K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
@@ -11,6 +11,7 @@ public class RSA {
             'k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',' '};//53 elements
     static List list = new ArrayList<Long>();
     public static void main(String[] args) {
+        System.out.println();
         if(args.length<1){
             System.out.println("To Generate Public key, put \"-g\" as first argument.\n\n" +
                     "To Encrypt, put \"-e\" as first argument and put \"pk(public key)\" as second arg and put \"n(p*q)\" as third arg.\n" +
@@ -42,12 +43,12 @@ public class RSA {
             }
         }
     }
-    public static long[] encrypt(int[] numArray, long e, long n){
+    public static long[] encrypt(int[] numArray, long pk, long n){
         long[] longArray = new long[numArray.length];
         for(int i=0;i<numArray.length;i++){
             int k=numArray[i];
             longArray[i]=numArray[i];
-            for(int j=0;j<e-1;j++){
+            for(int j=0;j<pk-1;j++){
                 longArray[i]=(longArray[i]*k)%n;
             }
         }
@@ -55,14 +56,73 @@ public class RSA {
     }
     public static int[] decrypt(long[] longArray, long d, long n){
         int[] intArray = new int[longArray.length];
-        for(int i=0;i<longArray.length;i++){
-            long k=longArray[i];
-            long l=longArray[i];
-            for(int j=0;j<d-1;j++){
-                l=((l*k)%n);
+        long start = System.currentTimeMillis();
+        List<Thread> tList = new ArrayList<>();
+        int threadSum=50;
+        int range=longArray.length/threadSum;
+        int mod = (range!=0)?longArray.length%threadSum:1;
+        if(range ==0){
+            for(int i=0;i<longArray.length;i++){
+                final int a=i;
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        long k=longArray[a];
+                        long l=longArray[a];
+                        for(int j=0;j<d-1;j++){
+                            l=((l*k)%n);
+                        }
+                        intArray[a]=(int)l;
+                    }
+                });
+                tList.add(thread);
             }
-            intArray[i]=(int)l;
+        }else{
+            for(int i=0;i<threadSum;i++){
+                final int a=i;
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        for(int m=a*range;m<a*range+range;m++){
+                            long k=longArray[m];
+                            long l=longArray[m];
+                            for(int j=0;j<d-1;j++){
+                                l=((l*k)%n);
+                            }
+                            intArray[m]=(int)l;
+                        }
+                    }
+                });
+                tList.add(thread);
+            }
+            for(int i=threadSum*range;i<threadSum*range+mod;i++){
+                final int a=i;
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        long k=longArray[a];
+                        long l=longArray[a];
+                        for(int j=0;j<d-1;j++){
+                            l=((l*k)%n);
+                        }
+                        intArray[a]=(int)l;
+                    }
+                });
+                tList.add(thread);
+            }
         }
+        try{
+            for(int o=0;o<tList.size();o++){
+                tList.get(o).start();
+            }
+            for(int o=0;o<tList.size();o++){
+                tList.get(o).join();
+            }
+        }catch (InterruptedException e){
+        }
+        long end = System.currentTimeMillis();
+//        System.out.println((end-start)+"ms");
+
         return intArray;
     }
     public static long lcm(long a, long b){
@@ -96,14 +156,15 @@ public class RSA {
 
         return new long[]{a, x0, y0};
     }
-    public static long gcdEx2(long e, long a, long b){
+    public static long gcdEx2(long e, long pk, long n){
         for(long d=1;;d++){
             long x;
-            x=a*d/b;
-            if((a*d-x*b)%e==1){
+            x=pk*d/n;
+            if((pk*d-x*n)%e==1){
                 return d;
             }
         }
+
     }
     public static int[] getString(){
         BufferedReader br;
@@ -184,12 +245,12 @@ public class RSA {
         }
     }
     public static long getPublicKey(long l){
-		Random rand = new Random();
-		int weight = 200;
-		long p=(long)rand.nextInt(25000);
-		if(p>l+weight){
-			p=l-weight;
-		}
+        Random rand = new Random();
+        int weight = 200;
+        long p=(long)rand.nextInt(25000);
+        if(p>l+weight){
+            p=l-weight;
+        }
         for(;p<l;p++){
             if(gcd(l,p)==1){
                 return p;
@@ -248,39 +309,53 @@ public class RSA {
         return result;
     }
     public static void generate(){
-        System.out.println("Generate prime number p and q");
-    	int p=4;
-        int q=4;
-		Random random = new Random();
+        System.out.println("Generating...");
+        int p;
+        int q;
+        long e;
+        long pk;
+        long sk;
+        Random random = new Random();
+
         while(true){
-	        int randomWeight=100000;
-        	while(!millerRabin(p)){
-        	    p=random.nextInt(randomWeight);
-        	}
-        	while(!millerRabin(q)){
-        	    q=random.nextInt(randomWeight);
-        	}
-        	if(p<0)p=p*(-1);
-        	if(q<0)q=q*(-1);
-			if(p*q>0){
-				break;
-			}else{
-				p=4;
-				q=4;
-			}
-		}
-        //to see p and q
-        System.out.println("p:"+p+"\nq:"+q);
+            p=4;
+            q=4;
+            while(true){
+                int randomWeight=100000;
+                while(!millerRabin(p)){
+                    p=random.nextInt(randomWeight);
+                }
+                while(!millerRabin(q)){
+                    q=random.nextInt(randomWeight);
+                }
+                if(p<0)p=p*(-1);
+                if(q<0)q=q*(-1);
+                if(p*q>0){
+                    break;
+                }else{
+                    p=4;
+                    q=4;
+                }
+            }
+            e =lcm(p,q);
+            pk = getPublicKey(e);
+            sk = gcdEx2(e,pk,(p-1)*(q-1));
+            if(verify(p*q,pk,sk))break;
+        }
 
-        System.out.println("Generate public key");
-        long e =lcm(p,q);
-        long pk = getPublicKey(e);
-        System.out.println("Public key:"+pk+"\nn:"+p*q);
-
-        System.out.println("Generate secret key");
-        long sk = gcdEx2(e,pk,(p-1)*(q-1));
+        System.out.println("p:"+p+"\nq:"+q+"\nn:"+p*q);
+        System.out.println("Public key:"+pk);
         System.out.println("Secret key:"+sk);
-        p=0;q=0;pk=0;sk=0;
-        p=p+q+(int)sk+(int)pk;
+    }
+    public static boolean verify(long n, long pk, long d){
+        int numArray[] = {45,30,44,45};//"test"
+        long[] longArray = encrypt(numArray,pk,n);
+        int numArray2[] = decrypt(longArray,d,n);
+        for(int i=0;i<numArray.length;i++){
+            if(!Integer.valueOf(numArray[i]).equals(numArray2[i])){
+                return false;//invalid
+            }
+        }
+        return true;//valid
     }
 }
