@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class Main {
+public class RSA {
     public static final int ALPH_SUM=53;
     static final char[] alpha = {'A','B','C','D','E','F','G','H','I','J',
             'K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
