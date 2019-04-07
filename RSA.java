@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -34,6 +32,108 @@ public class RSA {
                 char[] array = decrypt(longArray,sk,n);
                 showString(array);
                 return;
+            }else if(String.valueOf(args[0]).equals("-fe") && args.length==4){
+                String fileName = args[1];
+                String filePath1 = "./"+fileName+".txt";
+                String filePath2 = "./"+fileName+"Crypt.txt";
+                long pk=Long.valueOf(args[2]);
+                long n=Long.valueOf(args[3]);
+                File file1;
+                FileReader fr;
+                BufferedReader br;
+                File file2;
+                FileWriter fw;
+                BufferedWriter bw;
+                try{
+                    file1 = new File(filePath1);
+                    fr = new FileReader(file1);
+                    br = new BufferedReader(fr);
+                    file2 = new File(filePath2);
+                    fw = new FileWriter(file2);
+                    bw = new BufferedWriter(fw);
+                }catch (FileNotFoundException e){
+                    System.out.println("File Not Found : "+filePath1);
+                    return;
+                }catch (IOException e){
+                    System.out.println("File IO Exception");
+                    return;
+                }
+                String s;
+                try{
+                    while((s=br.readLine())!=null){
+                        char[] numArray = s.toCharArray();
+                        long[] longArray = encrypt(numArray,pk,n);
+                        String temp = "";
+                        for(int i=0;i<longArray.length;){
+                            temp+=String.valueOf(longArray[i]);
+                            i++;
+                            if(i>longArray.length-1){
+                                break;
+                            }
+                            temp+=",";
+                        }
+                        bw.write(temp);
+                        bw.newLine();
+
+                    }
+                    System.out.println("Finish");
+                    bw.close();
+                    br.close();
+                }catch (IOException e){
+                    System.out.println("File IO Exception");
+                    return;
+                }
+                return;
+            }else if(String.valueOf(args[0]).equals("-fd") && args.length==4){
+                String fileName = args[1];
+                String filePath1 = "./"+fileName+".txt";
+                String filePath2 = "./"+fileName+"Decrypted.txt";
+                long sk=Long.valueOf(args[2]);
+                long n=Long.valueOf(args[3]);
+                File file1;
+                FileReader fr;
+                BufferedReader br;
+                File file2;
+                FileWriter fw;
+                BufferedWriter bw;
+                try{
+                    file1 = new File(filePath1);
+                    fr = new FileReader(file1);
+                    br = new BufferedReader(fr);
+                    file2 = new File(filePath2);
+                    fw = new FileWriter(file2);
+                    bw = new BufferedWriter(fw);
+                }catch (FileNotFoundException e){
+                    System.out.println("File Not Found : "+filePath1);
+                    return;
+                }catch (IOException e){
+                    System.out.println("File IO Exception");
+                    return;
+                }
+                String s;
+                try{
+                    while((s=br.readLine())!=null){
+                        String numArray[] = s.split(",",0);
+                        if(numArray.length == 1 && String.valueOf(numArray[0]).equals("")){
+                            continue;
+                        }
+                        long longArray[] = new long[numArray.length];
+                        for(int i=0;i<numArray.length;i++){
+                            longArray[i]=Long.valueOf(numArray[i]);
+                        }
+                        char[] array = decrypt(longArray,sk,n);
+                        String temp = String.valueOf(array);
+                        bw.write(temp);
+                        bw.newLine();
+                    }
+                    System.out.println("Finish");
+                    bw.close();
+                    br.close();
+                }catch (IOException e){
+                    System.out.println("File IO Exception");
+                    return;
+                }
+                return;
             }
         }
     }
@@ -49,7 +149,7 @@ public class RSA {
         return longArray;
     }
     public static char[] decrypt(long[] longArray, long d, long n){
-    	char[] intArray = new char[longArray.length];
+        char[] intArray = new char[longArray.length];
         long start = System.currentTimeMillis();
         List<Thread> tList = new ArrayList<>();
         int threadSum=50;
@@ -115,7 +215,7 @@ public class RSA {
         }catch (InterruptedException e){
         }
         long end = System.currentTimeMillis();
-//        System.out.println((end-start)+"ms");
+        System.out.println((end-start)+"ms");
 
         return intArray;
     }
@@ -172,9 +272,9 @@ public class RSA {
             System.out.println("IOExeption occurred.");
             return null;
         }
-        
+
         char numArray[] = s1.toCharArray();
-        
+
         return numArray;
     }
     public static long[] getNum(){
@@ -200,10 +300,10 @@ public class RSA {
         System.out.println("");
         String s="";
         for(int i=0;i<numArray.length;i++) {
-        	s+=String.valueOf(numArray[i]);
+            s+=String.valueOf(numArray[i]);
         }
         System.out.println(s);
-        
+
     }
     public static void showNum(long[] numArray){
         System.out.println("num");
@@ -314,17 +414,17 @@ public class RSA {
             sk = gcdEx2(e,pk,(p-1)*(q-1));
             if(verify(p*q,pk,sk))break;
         }
-		System.out.println("\rGenerated       ");
+        System.out.println("\rGenerated       ");
         System.out.println("p:"+p+"\nq:"+q+"\nn:"+p*q);
         System.out.println("Public key:"+pk);
         System.out.println("Secret key:"+sk);
     }
     public static boolean verify(long n, long pk, long d){
-    	char numArray[] = {'t','e','s','t'};
+        char numArray[] = {'t','e','s','t'};
         long[] longArray = encrypt(numArray,pk,n);
         char numArray2[] = decrypt(longArray,d,n);
         for(int i=0;i<numArray.length;i++){
-        	if(numArray[i]!=numArray2[i]){
+            if(numArray[i]!=numArray2[i]){
                 return false;//invalid
             }
         }
