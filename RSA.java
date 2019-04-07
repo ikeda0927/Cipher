@@ -1,14 +1,11 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class RSA {
-    public static final int ALPH_SUM=53;
-    static final char[] alpha = {'A','B','C','D','E','F','G','H','I','J',
-            'K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-            'a','b','c','d','e','f','g','h','i','j',
-            'k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',' '};//53 elements
     static List list = new ArrayList<Long>();
     public static void main(String[] args) {
         System.out.println();
@@ -25,25 +22,22 @@ public class RSA {
             }else if(String.valueOf(args[0]).equals("-e") && args.length==3){
                 long pk=Long.valueOf(args[1]);
                 long n=Long.valueOf(args[2]);
-                int[] numArray = getString();
-                showNum(numArray);
+                char[] numArray = getString();
                 showString(numArray);
                 long[] longArray = encrypt(numArray,pk,n);
                 showNum(longArray);
-                showString(longArray);
                 return;
             }else if(String.valueOf(args[0]).equals("-d") && args.length==3){
                 long sk=Long.valueOf(args[1]);
                 long n=Long.valueOf(args[2]);
                 long[] longArray = getNum();
-                int[] array = decrypt(longArray,sk,n);
-                showNum(array);
+                char[] array = decrypt(longArray,sk,n);
                 showString(array);
                 return;
             }
         }
     }
-    public static long[] encrypt(int[] numArray, long pk, long n){
+    public static long[] encrypt(char[] numArray, long pk, long n){
         long[] longArray = new long[numArray.length];
         for(int i=0;i<numArray.length;i++){
             int k=numArray[i];
@@ -54,8 +48,8 @@ public class RSA {
         }
         return longArray;
     }
-    public static int[] decrypt(long[] longArray, long d, long n){
-        int[] intArray = new int[longArray.length];
+    public static char[] decrypt(long[] longArray, long d, long n){
+    	char[] intArray = new char[longArray.length];
         long start = System.currentTimeMillis();
         List<Thread> tList = new ArrayList<>();
         int threadSum=50;
@@ -72,7 +66,7 @@ public class RSA {
                         for(int j=0;j<d-1;j++){
                             l=((l*k)%n);
                         }
-                        intArray[a]=(int)l;
+                        intArray[a]=(char)l;
                     }
                 });
                 tList.add(thread);
@@ -89,7 +83,7 @@ public class RSA {
                             for(int j=0;j<d-1;j++){
                                 l=((l*k)%n);
                             }
-                            intArray[m]=(int)l;
+                            intArray[m]=(char)l;
                         }
                     }
                 });
@@ -105,7 +99,7 @@ public class RSA {
                         for(int j=0;j<d-1;j++){
                             l=((l*k)%n);
                         }
-                        intArray[a]=(int)l;
+                        intArray[a]=(char)l;
                     }
                 });
                 tList.add(thread);
@@ -166,7 +160,7 @@ public class RSA {
         }
 
     }
-    public static int[] getString(){
+    public static char[] getString(){
         BufferedReader br;
         String s1;
         br = new BufferedReader(new InputStreamReader(System.in));
@@ -178,16 +172,9 @@ public class RSA {
             System.out.println("IOExeption occurred.");
             return null;
         }
-        int numArray[] = new int[s1.length()];
-        for(int i=0;i<s1.length();i++){
-            numArray[i]=ALPH_SUM-1;
-            for(int j=0;j<ALPH_SUM;j++){
-                if(s1.charAt(i)==alpha[j]){
-                    numArray[i]=j;
-                    break;
-                }
-            }
-        }
+        
+        char numArray[] = s1.toCharArray();
+        
         return numArray;
     }
     public static long[] getNum(){
@@ -209,31 +196,16 @@ public class RSA {
         }
         return array;
     }
-    public static void showString(int[] numArray){
+    public static void showString(char[] numArray){
         System.out.println("");
-        for(int i=0;i<numArray.length;i++){
-            System.out.print(alpha[(numArray[i]>=ALPH_SUM||numArray[i]<0)?ALPH_SUM-1:numArray[i]]);
+        String s="";
+        for(int i=0;i<numArray.length;i++) {
+        	s+=String.valueOf(numArray[i]);
         }
-    }
-    public static void showString(long[] numArray){
-        System.out.println("");
-        for(int i=0;i<numArray.length;i++){
-            System.out.print(alpha[(numArray[i]>=ALPH_SUM||numArray[i]<0)?ALPH_SUM-1:(int)numArray[i]]);
-        }
-        System.out.println("");
+        System.out.println(s);
+        
     }
     public static void showNum(long[] numArray){
-        System.out.println("num");
-        for(int i=0;;){
-            System.out.print(numArray[i]);
-            i++;
-            if(i>numArray.length-1){
-                break;
-            }
-            System.out.print(",");
-        }
-    }
-    public static void showNum(int[] numArray){
         System.out.println("num");
         for(int i=0;;){
             System.out.print(numArray[i]);
@@ -309,7 +281,7 @@ public class RSA {
         return result;
     }
     public static void generate(){
-        System.out.println("Generating...");
+        System.out.print("Generating...");
         int p;
         int q;
         long e;
@@ -342,17 +314,17 @@ public class RSA {
             sk = gcdEx2(e,pk,(p-1)*(q-1));
             if(verify(p*q,pk,sk))break;
         }
-
+		System.out.println("\rGenerated       ");
         System.out.println("p:"+p+"\nq:"+q+"\nn:"+p*q);
         System.out.println("Public key:"+pk);
         System.out.println("Secret key:"+sk);
     }
     public static boolean verify(long n, long pk, long d){
-        int numArray[] = {45,30,44,45};//"test"
+    	char numArray[] = {'t','e','s','t'};
         long[] longArray = encrypt(numArray,pk,n);
-        int numArray2[] = decrypt(longArray,d,n);
+        char numArray2[] = decrypt(longArray,d,n);
         for(int i=0;i<numArray.length;i++){
-            if(!Integer.valueOf(numArray[i]).equals(numArray2[i])){
+        	if(numArray[i]!=numArray2[i]){
                 return false;//invalid
             }
         }
