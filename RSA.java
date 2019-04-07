@@ -1,10 +1,12 @@
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class RSA {
-    static List list = new ArrayList<Long>();
     public static void main(String[] args) {
         System.out.println();
         if(args.length<1){
@@ -12,7 +14,17 @@ public class RSA {
                     "To Encrypt, put \"-e\" as first argument and put \"pk(public key)\" as second arg and put \"n(p*q)\" as third arg.\n" +
                     "Enter Plain text. Then you can get Encrypted text(as number array). \n\n" +
                     "To Decrypt, put \"-d\" as first argument and put \"sk(secret key)\" as second arg and put \"n(p*q)\" as third arg\n" +
-                    "Enter Encrypted text(number array with \",\"). Then you can get Decrypted text.");
+                    "Enter Encrypted text(number array with \",\"). Then you can get Decrypted text.\n\n" +
+                    "To Encrypt Text in a file, put \"-fe\" as first argument and put \"File name(name only)\" as second arg and put \"pk(public key)\" as third arg and put \"n(p*q)\" as forth arg.\n" +
+                    "Check Directory where run this program, there is \"Filename+Crypt.txt\" File.\n\n" +
+                    "To Decrypt Text in a file, put \"-fd\" as first argument and put \"File name(name only)\" as second arg and put \"sk(secret key)\" as third arg and put \"n(p*q)\" as forth arg.\n" +
+                    "Check Directory where run this program, there is \"Filename+Decrypted.txt\" File.\n\n" +
+                    "To Get Hash(SHA-256) of a File, put \"-hash\" as first argument and put \"File name(name only)\"as second arg.\n" +
+                    "Check Directory where run this program, there is \"Filename+_Hash.txt\" File\n\n" +
+                    "To Get Electronic Signature, put \"-es\" as first argument and put \"File name(name only)\"as second arg and put \"sk(secret key)\" as third arg and put \"n(p*q)\" as forth arg.\n" +
+                    "Check Directory where run this program, there is  \"Filename+_E_Signature.txt\" File\n\n" +
+                    "To Compare E-Signature to Hash,  put \"-ces\" as first argument and put \"File name(name only)\"as second arg and put \"pk(public key)\" as third arg and put \"n(p*q)\" as forth arg." +
+                    "And Enter  Encrypted text(number array with \",\"). If \"Same text\" displayed, the text wasn't altered. If\"NOT same text\" displayed, the text was altered\n\n");
         }else{
             if(String.valueOf(args[0]).equals("-g")){
                 generate();
@@ -134,6 +146,185 @@ public class RSA {
                     return;
                 }
                 return;
+            }else if(String.valueOf(args[0]).equals("-es") && args.length==4){
+                String fileName = args[1];
+                String filePath1 = "./"+fileName+".txt";
+                String filePath2 = "./"+fileName+"_E_Signature.txt";
+                long sk=Long.valueOf(args[2]);
+                long n=Long.valueOf(args[3]);
+                File file1;
+                FileReader fr;
+                BufferedReader br;
+                File file2;
+                FileWriter fw;
+                BufferedWriter bw;
+                try{
+                    file1 = new File(filePath1);
+                    fr = new FileReader(file1);
+                    br = new BufferedReader(fr);
+                    file2 = new File(filePath2);
+                    fw = new FileWriter(file2);
+                    bw = new BufferedWriter(fw);
+                }catch (FileNotFoundException e){
+                    System.out.println("File Not Found : "+filePath1);
+                    return;
+                }catch (IOException e){
+                    System.out.println("File IO Exception");
+                    return;
+                }
+                String s;
+                String wholeText = "";
+                try{
+                    while((s=br.readLine())!=null){
+                        wholeText+=s;
+                    }
+                    br.close();
+                }catch (IOException e){
+                }
+                MessageDigest md;
+                byte[] bytes;
+                try{
+                    md = MessageDigest.getInstance("SHA-256");
+                }catch (NoSuchAlgorithmException e){
+                    System.out.println("No SHA-256 algorithm");
+                    return;
+                }
+                md.update(wholeText.getBytes());
+                bytes=md.digest();
+                String hexBinary = DatatypeConverter.printHexBinary(bytes);
+                System.out.println("Hash is");
+                System.out.println(hexBinary);
+                System.out.println("E_Signature is");
+                long[] eSig = encrypt(hexBinary.toCharArray(),sk,n);
+                String strEESig = "";
+                for(int i=0;i<eSig.length;){
+                    strEESig+=String.valueOf(eSig[i]);
+                    i++;
+                    if(i>eSig.length-1){
+                        break;
+                    }
+                    strEESig+=",";
+                }
+                System.out.println(strEESig);
+                try{
+                    bw.write("Hash is");
+                    bw.newLine();
+                    bw.newLine();
+                    bw.write(hexBinary);
+                    bw.newLine();
+                    bw.newLine();
+                    bw.write("E_Signature is");
+                    bw.newLine();
+                    bw.newLine();
+                    bw.write(strEESig);
+                    bw.close();
+                }catch (IOException e){
+                    System.out.println("IO Exception");
+                    return;
+                }
+            }else if(String.valueOf(args[0]).equals("-ces") && args.length==4){
+                String fileName = args[1];
+                String filePath1 = "./"+fileName+".txt";
+                long pk=Long.valueOf(args[2]);
+                long n=Long.valueOf(args[3]);
+                File file1;
+                FileReader fr;
+                BufferedReader br;
+                try{
+                    file1 = new File(filePath1);
+                    fr = new FileReader(file1);
+                    br = new BufferedReader(fr);
+                }catch (FileNotFoundException e){
+                    System.out.println("File Not Found : "+filePath1);
+                    return;
+                }
+                String s;
+                String wholeText = "";
+                try{
+                    while((s=br.readLine())!=null){
+                        wholeText+=s;
+                    }
+                    br.close();
+                }catch (IOException e){
+                }
+                MessageDigest md;
+                byte[] bytes;
+                try{
+                    md = MessageDigest.getInstance("SHA-256");
+                }catch (NoSuchAlgorithmException e){
+                    System.out.println("No SHA-256 algorithm");
+                    return;
+                }
+                md.update(wholeText.getBytes());
+                bytes=md.digest();
+                String hexBinary = DatatypeConverter.printHexBinary(bytes);
+                System.out.println("E_Signature is");
+                System.out.println(hexBinary);
+
+                long[] longArray = getNum();
+                char[] dESig = decrypt(longArray,pk,n);
+                String strDESig = String.valueOf(dESig);
+                if(String.valueOf(hexBinary).equals(strDESig)){
+                    System.out.println("Same text");
+                }else{
+                    System.out.println("NOT same text");
+                }
+                return;
+            }else if(String.valueOf(args[0]).equals("-hash") && args.length==2){
+                String fileName = args[1];
+                String filePath1 = "./"+fileName+".txt";
+                String filePath2 = "./"+fileName+"_Hash.txt";
+                File file1;
+                FileReader fr;
+                BufferedReader br;
+                File file2;
+                FileWriter fw;
+                BufferedWriter bw;
+                try{
+                    file1 = new File(filePath1);
+                    fr = new FileReader(file1);
+                    br = new BufferedReader(fr);
+                    file2 = new File(filePath2);
+                    fw = new FileWriter(file2);
+                    bw = new BufferedWriter(fw);
+                }catch (FileNotFoundException e){
+                    System.out.println("File Not Found : "+filePath1);
+                    return;
+                }catch (IOException e){
+                    System.out.println("File IO Exception");
+                    return;
+                }
+                String s;
+                String wholeText = "";
+                try{
+                    while((s=br.readLine())!=null){
+                        wholeText+=s;
+                    }
+                    br.close();
+                }catch (IOException e){
+                }
+                MessageDigest md;
+                byte[] bytes;
+                try{
+                    md = MessageDigest.getInstance("SHA-256");
+                }catch (NoSuchAlgorithmException e){
+                    System.out.println("No SHA-256 algorithm");
+                    return;
+                }
+                md.update(wholeText.getBytes());
+                bytes=md.digest();
+                String hexBinary = DatatypeConverter.printHexBinary(bytes);
+                System.out.println("Hash is");
+                System.out.println(hexBinary);
+                try{
+                    bw.write("Hash is");
+                    bw.newLine();
+                    bw.write(hexBinary);
+                    bw.close();
+                }catch (IOException e){
+                    System.out.println("IO Exception");
+                    return;
+                }
             }
         }
     }
