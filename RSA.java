@@ -325,7 +325,17 @@ public class RSA {
                     System.out.println("IO Exception");
                     return;
                 }
-            }
+            }else if(String.valueOf(args[0]).equals("-factoring") && args.length==2){
+				System.out.println("Factoring...");
+				long num = Long.valueOf(args[1]);
+				for(long n=2;n<num;n++){
+					if(num%n==0){
+						System.out.println("p:"+n);
+						System.out.println("q:"+num/n);
+						return;
+					}
+				}
+			}
         }
     }
     public static long[] encrypt(char[] numArray, long pk, long n){
@@ -424,32 +434,12 @@ public class RSA {
         }
         return b;
     }
-    public static long[] gcdEx(long a, long b){
-        long x0 = 1, x1 = 0;
-        long y0 = 0, y1 = 1;
-
-        while (b != 0) {
-            long q = a / b;
-            long r = a % b;
-            long x2 = x0 - q * x1;
-            long y2 = y0 - q * y1;
-
-            a = b; b = r;
-            x0 = x1; x1 = x2;
-            y0 = y1; y1 = y2;
-        }
-
-        return new long[]{a, x0, y0};
-    }
-    public static long gcdEx2(long e, long pk, long n){
+    public static long gcdEx(long l, long pk, long n){
         for(long d=1;;d++){
-            long x;
-            x=pk*d/n;
-            if((pk*d-x*n)%e==1){
+            if((pk*d)%l==1){
                 return d;
             }
         }
-
     }
     public static char[] getString(){
         BufferedReader br;
@@ -498,7 +488,7 @@ public class RSA {
     }
     public static void showNum(long[] numArray){
         System.out.println("num");
-        for(int i=0;;){
+        for(int i=0;i<numArray.length;){
             System.out.print(numArray[i]);
             i++;
             if(i>numArray.length-1){
@@ -509,23 +499,13 @@ public class RSA {
     }
     public static long getPublicKey(long l){
         Random rand = new Random();
-        int weight = 200;
-        long p=(long)rand.nextInt(25000);
-        if(p>l+weight){
-            p=l-weight;
-        }
+        long p=(long)rand.nextInt(5000000)+2;
         for(;p<l;p++){
             if(gcd(l,p)==1){
                 return p;
             }
         }
         return 0;
-    }
-    public static long getSecretKey(long e, long totient){
-        long d[]=gcdEx(e,totient);
-        System.out.println("d[0]:"+d[0]+" d[1]:"+d[1]+" d[2]"+d[2]);
-        if(d[2]>0)return d[2];
-        return d[1];
     }
     public static boolean millerRabin(long num){
         //Prime : True
@@ -575,7 +555,7 @@ public class RSA {
         System.out.print("Generating...");
         int p;
         int q;
-        long e;
+        long l;
         long pk;
         long sk;
         Random random = new Random();
@@ -600,9 +580,9 @@ public class RSA {
                     q=4;
                 }
             }
-            e =lcm(p,q);
-            pk = getPublicKey(e);
-            sk = gcdEx2(e,pk,(p-1)*(q-1));
+            l =lcm(p,q);
+            pk = getPublicKey(l);
+            sk = gcdEx(l,pk,(p-1)*(q-1));
             if(verify(p*q,pk,sk))break;
         }
         System.out.println("\rGenerated       ");
