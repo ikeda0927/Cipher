@@ -1,4 +1,3 @@
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -191,7 +190,7 @@ public class RSA {
                 }
                 md.update(wholeText.getBytes());
                 bytes=md.digest();
-                String hexBinary = DatatypeConverter.printHexBinary(bytes);
+                String hexBinary = bytesToHexes(bytes);
                 System.out.println("Hash is");
                 System.out.println(hexBinary);
                 System.out.println("E_Signature is");
@@ -257,7 +256,7 @@ public class RSA {
                 }
                 md.update(wholeText.getBytes());
                 bytes=md.digest();
-                String hexBinary = DatatypeConverter.printHexBinary(bytes);
+                String hexBinary = bytesToHexes(bytes);
                 System.out.println("E_Signature is");
                 System.out.println(hexBinary);
 
@@ -313,7 +312,7 @@ public class RSA {
                 }
                 md.update(wholeText.getBytes());
                 bytes=md.digest();
-                String hexBinary = DatatypeConverter.printHexBinary(bytes);
+                String hexBinary = bytesToHexes(bytes);
                 System.out.println("Hash is");
                 System.out.println(hexBinary);
                 try{
@@ -601,4 +600,17 @@ public class RSA {
         }
         return true;//valid
     }
+	public static String byteToHex(byte num) {
+	    char[] hexDigits = new char[2];
+	    hexDigits[0] = Character.forDigit((num >> 4) & 0xF, 16);
+	    hexDigits[1] = Character.forDigit((num & 0xF), 16);
+	    return new String(hexDigits);
+	}
+	public static String bytesToHexes(byte[] num){
+		String s="";
+		for(int i=0;i<num.length;i++){
+			s+=byteToHex(num[i]);
+		}
+		return s;
+	}
 }
