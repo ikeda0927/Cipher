@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+
 public class RSA {
     public static void main(String[] args) {
         System.out.println();
@@ -85,6 +86,7 @@ public class RSA {
                         }
                         bw.write(temp);
                         bw.newLine();
+
 
                     }
                     System.out.println("Finish");
@@ -256,13 +258,14 @@ public class RSA {
                 }
                 md.update(wholeText.getBytes());
                 bytes=md.digest();
-                String hexBinary = bytesToHexes(bytes);
+                String hexBinary = bytesToHexes(bytes).toUpperCase();
                 System.out.println("E_Signature is");
                 System.out.println(hexBinary);
 
                 long[] longArray = getNum();
                 char[] dESig = decrypt(longArray,pk,n);
-                String strDESig = String.valueOf(dESig);
+                String strDESig = String.valueOf(dESig).toUpperCase();
+                System.out.println(strDESig);
                 if(String.valueOf(hexBinary).equals(strDESig)){
                     System.out.println("Same text");
                 }else{
@@ -325,16 +328,37 @@ public class RSA {
                     return;
                 }
             }else if(String.valueOf(args[0]).equals("-factoring") && args.length==2){
-				System.out.println("Factoring...");
-				long num = Long.valueOf(args[1]);
-				for(long n=2;n<num;n++){
-					if(num%n==0){
-						System.out.println("p:"+n);
-						System.out.println("q:"+num/n);
-						return;
-					}
-				}
-			}
+                System.out.println("Factoring...");
+                long num = Long.valueOf(args[1]);
+                for(long n=2;n<num;n++){
+                    if(num%n==0){
+                        System.out.println("p:"+n);
+                        System.out.println("q:"+num/n);
+                        return;
+                    }
+                }
+            }else{//a:97, b:98, y:121, z:122, A:65, B:66, Y:89, Z:90
+                char a = 'a';
+                char b = 'b';
+                char y = 'y';
+                char z = 'z';
+                char A = 'A';
+                char B = 'B';
+                char Y = 'Y';
+                char Z = 'Z';
+                int ai = a;
+                int bi = b;
+                int yi = y;
+                int zi = z;
+                int Ai = A;
+                int Bi = B;
+                int Yi = Y;
+                int Zi = Z;
+                System.out.println(a+":"+ai+", "+b+":"+bi+", "+y+":"+yi+", "+z+":"+zi+", "+A+":"+Ai+", "+B+":"+Bi+", "+Y+":"+Yi+", "+Z+":"+Zi);
+                for(char i=65;i<123;i++){
+                    System.out.println(i);
+                }
+            }
         }
     }
     public static long[] encrypt(char[] numArray, long pk, long n){
@@ -417,6 +441,7 @@ public class RSA {
         long end = System.currentTimeMillis();
         System.out.println((end-start)+"ms");
 
+
         return intArray;
     }
     public static long lcm(long a, long b){
@@ -453,7 +478,9 @@ public class RSA {
             return null;
         }
 
+
         char numArray[] = s1.toCharArray();
+
 
         return numArray;
     }
@@ -483,6 +510,7 @@ public class RSA {
             s+=String.valueOf(numArray[i]);
         }
         System.out.println(s);
+
 
     }
     public static void showNum(long[] numArray){
@@ -559,6 +587,7 @@ public class RSA {
         long sk;
         Random random = new Random();
 
+
         while(true){
             p=4;
             q=4;
@@ -600,17 +629,17 @@ public class RSA {
         }
         return true;//valid
     }
-	public static String byteToHex(byte num) {
-	    char[] hexDigits = new char[2];
-	    hexDigits[0] = Character.forDigit((num >> 4) & 0xF, 16);
-	    hexDigits[1] = Character.forDigit((num & 0xF), 16);
-	    return new String(hexDigits);
-	}
-	public static String bytesToHexes(byte[] num){
-		String s="";
-		for(int i=0;i<num.length;i++){
-			s+=byteToHex(num[i]);
-		}
-		return s;
-	}
+    public static String byteToHex(byte num) {
+        char[] hexDigits = new char[2];
+        hexDigits[0] = Character.forDigit((num >> 4) & 0xF, 16);
+        hexDigits[1] = Character.forDigit((num & 0xF), 16);
+        return new String(hexDigits);
+    }
+    public static String bytesToHexes(byte[] num){
+        String s="";
+        for(int i=0;i<num.length;i++){
+            s+=byteToHex(num[i]);
+        }
+        return s;
+    }
 }
