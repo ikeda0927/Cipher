@@ -592,7 +592,7 @@ public class RSA {
             p=4;
             q=4;
             while(true){
-                int randomWeight=100000;
+                int randomWeight=10000;
                 while(!millerRabin(p)){
                     p=random.nextInt(randomWeight);
                 }
